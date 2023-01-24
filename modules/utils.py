@@ -2,11 +2,11 @@ from system_ui import *
 import sqlite3
 import re
 
-import pdfkit
+import pdfkit # type: ignore
 import os
-import win32api
-import win32print
-#import weasyprint
+import win32api # type: ignore
+import win32print # type: ignore
+
 from datetime import datetime
 
 GHOSTSCRIPT_PATH = os.getcwd() + "\\GHOSTSCRIPT\\bin\\gswin32.exe"
@@ -24,7 +24,7 @@ class dbDriver():
         (_, cursor) = self.run_query(query, [table_name])
         return cursor.rowcount
 
-    def update_bill_state_in_db(self, id, new_state, cancelation_date = None):#separar el update de la fecha de cancelacion en otra funcion
+    def update_bill_state_in_db(self, id, new_state, cancelation_date = None):
         query = "UPDATE Bills SET cancelation_date = ?, state = ? WHERE id = ?"
         (_, cursor) = self.run_query(query, [cancelation_date, new_state, id])
         return cursor.rowcount
@@ -191,7 +191,7 @@ class printerDriver():
         
         bill_html = first_part + articles_part + last_part
 
-        config = pdfkit.configuration(wkhtmltopdf= os.getcwd() + "\\wkhtmltopdf\\bin\\wkhtmltopdf.exe") # set wkhtmltopdf .exe path  os.getcwd() + "\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+        config = pdfkit.configuration(wkhtmltopdf= os.getcwd() + "\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
         pdfkit.from_string(bill_html, 'pdf_generated.pdf', configuration=config, css='style.css',
             options =
                 {
