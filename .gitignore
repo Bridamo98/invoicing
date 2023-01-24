@@ -6,4 +6,4 @@ dist/wkhtmltopdf
 GHOSTSCRIPT
 GSPRINT
 wkhtmltopdf
-
+*.db

@@ -147,6 +147,10 @@ class printerDriver():
         first_part = """
             <head>
                 <meta charset="UTF-8">
+                <style>
+                p { font-size: 18px; margin-bottom:0; margin : 0; padding-top:0;}
+                li { font-size: 18px; }
+                </style>
             </head>
             <h1 style="text-align: center;"><span style="text-decoration: underline; background-color: #999999;">GAMUZAS, CUERO &
                     COLOR</span></h1>
@@ -192,7 +196,7 @@ class printerDriver():
         bill_html = first_part + articles_part + last_part
 
         config = pdfkit.configuration(wkhtmltopdf= os.getcwd() + "\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-        pdfkit.from_string(bill_html, 'pdf_generated.pdf', configuration=config, css='style.css',
+        pdfkit.from_string(bill_html, 'pdf_generated.pdf', configuration=config,
             options =
                 {
                     'page-height': '297mm', #Depends on POS Printer dimensions
