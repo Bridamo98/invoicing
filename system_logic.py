@@ -214,6 +214,8 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.queryIncreaseDepositField.textChanged.connect(
             lambda: self.add_thousand_separators_format(self.queryIncreaseDepositField))
 
+        self.set_regex_validator("[0-9,]+", self.queryIncreaseDepositField)
+
         # queryDepositForCancelationField -----------------------------------------------------------------------------------------------
 
         self.queryDepositForCancelationField.textChanged.connect(

@@ -7,14 +7,20 @@ import os
 import win32api # type: ignore
 import win32print # type: ignore
 
-from datetime import datetime
+path = os.getcwd()
+parent_path = os.path.abspath(os.path.join(path, os.pardir))
 
-GHOSTSCRIPT_PATH = os.getcwd() + "\\GHOSTSCRIPT\\bin\\gswin32.exe"
-GSPRINT_PATH = os.getcwd() + "\\GSPRINT\\gsprint.exe"
+GHOSTSCRIPT_PATH = parent_path + "\\static_dependencies\\GHOSTSCRIPT\\bin\\gswin32.exe"
+GSPRINT_PATH = parent_path + "\\static_dependencies\\GSPRINT\\gsprint.exe"
+WKHTMLTOPDF_PATH = parent_path + "\\static_dependencies\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+
+page_height = '297mm' #Depends on POS Printer dimensions
+page_width = '72.1mm' #Depends on POS Printer dimensions
+dpi = '203' #Depends on POS Printer dimensions
 
 class dbDriver():
 
-    db_name = 'migration_test.db'
+    db_name = parent_path + '\\static_dependencies\\migration_test.db'
 
     def __init__(self):
         pass
@@ -55,7 +61,6 @@ class dbDriver():
         return cursor.rowcount
 
     def get_client_from_db(self, phone=None):
-
         query = 'SELECT * FROM Clients WHERE phone = ?'
         (result, _) = self.run_query(query, [phone])
         list_result = list(result)
@@ -195,17 +200,17 @@ class printerDriver():
         
         bill_html = first_part + articles_part + last_part
 
-        config = pdfkit.configuration(wkhtmltopdf= os.getcwd() + "\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+        config = pdfkit.configuration(wkhtmltopdf= WKHTMLTOPDF_PATH)
         pdfkit.from_string(bill_html, 'pdf_generated.pdf', configuration=config,
             options =
                 {
-                    'page-height': '297mm', #Depends on POS Printer dimensions
-                    'page-width': '72.1mm', #Depends on POS Printer dimensions
+                    'page-height': page_height,
+                    'page-width': page_width,
                     'margin-top': '0.0mm',
                     'margin-right': '0.0mm',
                     'margin-bottom': '0.0mm',
                     'margin-left': '0.0mm',
-                    'dpi': '203',#Depends on POS Printer dimensions
+                    'dpi': dpi,
                 })
 
 
