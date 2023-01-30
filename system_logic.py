@@ -78,7 +78,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.articlesTable.setColumnWidth(3, 180)
 
         self.articlesTable.itemSelectionChanged.connect(
-            lambda: self.ckeck_if_can_remove_article(self.articlesTable, self.removeArticleButton))
+            lambda: self.ckeck_if_can_do_action_on_table(self.articlesTable, self.removeArticleButton))
 
         # articlesNumberField -----------------------------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.consultArticlesTable.setColumnWidth(5, 90)
 
         self.consultArticlesTable.itemSelectionChanged.connect(
-            lambda: self.ckeck_if_can_remove_article(self.consultArticlesTable, self.removeConsultArticleButton, 5, 'NE'))
+            lambda: self.ckeck_if_can_do_action_on_table(self.consultArticlesTable, self.removeConsultArticleButton, 5, 'NE'))
 
         # removeConsultArticleButton -----------------------------------------------------------------------------------------------
 
@@ -299,6 +299,155 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.undoBillButton.clicked.connect(
             lambda: self.undo_bill(int(self.billCodeField.text())))
 
+        # filterClientsPhoneField -----------------------------------------------------------------------------------------------
+
+        self.set_regex_validator("[0-9_]+", self.filterClientsPhoneField)
+
+        self.filterClientsPhoneField.textChanged.connect(
+            lambda: self.filter_clients_table(self.filterClientsPhoneField.text(), self.filterClientsNameField.text()))
+
+        # filterClientsNameField -----------------------------------------------------------------------------------------------
+
+        self.filterClientsNameField.textChanged.connect(
+            lambda: self.filter_clients_table(self.filterClientsPhoneField.text(), self.filterClientsNameField.text()))
+
+        # filterClientsTable -----------------------------------------------------------------------------------------------
+
+        self.filterClientsTable.setColumnWidth(0, 119)
+        self.filterClientsTable.setColumnWidth(1, 223)
+
+        self.filter_clients_table()
+
+        self.filterClientsTable.itemSelectionChanged.connect(
+            lambda: self.ckeck_if_can_do_action_on_table(self.filterClientsTable, self.filterBillsButton))
+        
+        # filterBillsButton -----------------------------------------------------------------------------------------------
+
+        self.filterBillsButton.clicked.connect(
+            lambda: self.set_table_column_on_field(self.filterClientsTable, 0, self.filterBillsPhoneField))
+
+        self.update_filter_bills_totals_handler(self.filterBillsButton, 'button')
+
+        # filterBillsPhoneField -----------------------------------------------------------------------------------------------
+
+        self.set_regex_validator("[0-9_]+", self.filterBillsPhoneField)
+
+        self.filterBillsPhoneField.textChanged.connect(
+            lambda: self.filter_bills_table(self.filterBillsPhoneField.text(), self.filterBillsStateField.currentText()))
+        
+        self.update_filter_bills_totals_handler(self.filterBillsPhoneField, 'text_input')
+        
+        # filterBillsStateField -----------------------------------------------------------------------------------------------
+
+        self.filterBillsStateField.addItem('-')
+
+        self.filterBillsStateField.addItem('Sin entregar')
+
+        self.filterBillsStateField.addItem('Entrega parcial')
+
+        self.filterBillsStateField.addItem('Entregado')
+
+        self.filterBillsStateField.currentTextChanged.connect(
+            lambda: self.filter_bills_table(self.filterBillsPhoneField.text(), self.filterBillsStateField.currentText()))
+        
+        self.update_filter_bills_totals_handler(self.filterBillsStateField, 'combo_box')
+
+
+        # filterBillsTable -----------------------------------------------------------------------------------------------
+
+        self.filterBillsTable.setColumnWidth(0, 60)
+        self.filterBillsTable.setColumnWidth(1, 100)
+        self.filterBillsTable.setColumnWidth(2, 30)
+        self.filterBillsTable.setColumnWidth(3, 90)
+        self.filterBillsTable.setColumnWidth(4, 90)
+        self.filterBillsTable.setColumnWidth(5, 90)
+        self.filterBillsTable.setColumnWidth(6, 90)
+        self.filterBillsTable.setColumnWidth(7, 100)
+        self.filterBillsTable.setColumnWidth(8, 110)
+        self.filterBillsTable.setColumnWidth(9, 110)
+
+        self.filter_bills_table()
+
+        # filterBillsNumberField -----------------------------------------------------------------------------------------------
+
+
+        # filterBillsTotalField -----------------------------------------------------------------------------------------------
+        
+        self.filterBillsTotalField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.filterBillsTotalField))
+        
+        # filterBillsDepositField -----------------------------------------------------------------------------------------------
+
+        self.filterBillsDepositField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.filterBillsDepositField))
+        
+        # filterBillsDepositForCancelationField -----------------------------------------------------------------------------------------------
+
+        self.filterBillsDepositForCancelationField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.filterBillsDepositForCancelationField))
+        
+        # filterBillsBalanceField -----------------------------------------------------------------------------------------------
+
+        self.filterBillsBalanceField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.filterBillsBalanceField))
+        
+        self.init_filter_totals()
+
+
+
+    def update_filter_bills_totals_handler(self, field, field_type):
+    
+        if field_type == 'button':
+            field.clicked.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsNumberField, 2))
+            field.clicked.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsTotalField, 3))
+            field.clicked.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositField, 4))
+            field.clicked.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositForCancelationField, 5))
+            field.clicked.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsBalanceField, 6))
+        elif field_type == 'text_input':
+            field.textChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsNumberField, 2))
+            field.textChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsTotalField, 3))
+            field.textChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositField, 4))
+            field.textChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositForCancelationField, 5))
+            field.textChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsBalanceField, 6))
+        else:
+            field.currentTextChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsNumberField, 2))
+            field.currentTextChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsTotalField, 3))
+            field.currentTextChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositField, 4))
+            field.currentTextChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositForCancelationField, 5))
+            field.currentTextChanged.connect(
+                lambda: self.sum_column_on_field(self.filterBillsTable, self.filterBillsBalanceField, 6))
+    
+    def init_filter_totals(self):
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsNumberField, 2)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsTotalField, 3)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositField, 4)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositForCancelationField, 5)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsBalanceField, 6)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsNumberField, 2)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsTotalField, 3)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositField, 4)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositForCancelationField, 5)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsBalanceField, 6)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsNumberField, 2)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsTotalField, 3)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositField, 4)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsDepositForCancelationField, 5)
+        self.sum_column_on_field(self.filterBillsTable, self.filterBillsBalanceField, 6)
+
     def find_client(self, phone):
 
         client = self.get_client_from_db(phone)
@@ -329,8 +478,8 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 for article in articles:
                     (article_id, _, number, service, description,
                      value, article_state) = article
-                    self.add_article_on_consult(
-                        article_id, number, service, description, value, article_state)
+                    self.add_rows_to_table(
+                        self.consultArticlesTable, [article_id, number, service, description, self.add_commas(value), article_state])
 
             self.queryTotalArticlesField.setText(str(total_articles))
             self.queryTotalField.setText(self.add_commas(total))
@@ -440,6 +589,32 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 self, "OK", "Factura anulada correctamente")
             self.reset_bill_consult_fields()
 
+    def filter_clients_table(self, phone = '', name = ''):
+        self.filterClientsTable.setRowCount(0)
+
+        clients = self.get_clients_from_db(phone, name)
+
+        if clients:
+            for client in clients:
+                (phone, name) = client
+                self.add_rows_to_table(self.filterClientsTable, [phone, name])
+
+    def filter_bills_table(self, phone = '', state = '-'):
+        self.filterBillsTable.setRowCount(0)
+
+        bills = self.get_bills_from_db(phone, state)
+
+        if bills:
+            for bill in bills:
+                (code, phone, total_articles, total,
+                    deposit, deposit_for_cancelation, balance, state, generation_date, cancelation_date) = bill
+                self.add_rows_to_table(
+                    self.filterBillsTable,
+                    [
+                        str(code), str(phone), str(total_articles), self.add_commas(total), self.add_commas(deposit),
+                        self.add_commas(deposit_for_cancelation), self.add_commas(balance), state, generation_date, cancelation_date if cancelation_date else '-'
+                    ])
+
     def get_items_from_table(self, tableField):
         items = []
         rows = tableField.rowCount()
@@ -463,48 +638,28 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
     def add_article_on_creation(self):
 
-        self.add_article_to_table(
+        self.add_rows_to_table(
             self.articlesTable,
-            None,
-            int(self.articlesNumberField.text()),
-            self.articleServiceField.currentText(),
-            self.articleDescriptionField.text(),
-            int(self.articlesNumberField.text()) *
-            self.rem_commas(self.articleUnitValueField.text()),
-            None)
+            [
+                int(self.articlesNumberField.text()),
+                self.articleServiceField.currentText(),
+                self.articleDescriptionField.text(),
+                self.add_commas(int(self.articlesNumberField.text()) * self.rem_commas(self.articleUnitValueField.text()))])
 
         self.reset_article_addition_fields()
 
     def add_article_on_consult(self, article_id, number, service, description, value, article_state):
 
-        self.add_article_to_table(
-            self.consultArticlesTable, article_id, number, service, description, value, article_state)
+        self.add_rows_to_table(
+            self.consultArticlesTable, [article_id, number, service, description, self.add_commas(value), article_state])
 
-    def add_article_to_table(self, table_field, article_id, number, service, description, total_value, article_state):
-
+    def add_rows_to_table(self, table_field, fields):
         num_rows = table_field.rowCount()
         table_field.insertRow(num_rows)
-        offset = 0
 
-        if article_id:
-
+        for (index, field) in enumerate(fields):
             table_field.setItem(
-                num_rows, offset, QtWidgets.QTableWidgetItem(str(article_id)))
-
-            offset = 1
-
-        table_field.setItem(
-            num_rows, 0 + offset, QtWidgets.QTableWidgetItem(str(number)))
-        table_field.setItem(
-            num_rows, 1 + offset, QtWidgets.QTableWidgetItem(service))
-        table_field.setItem(
-            num_rows, 2 + offset, QtWidgets.QTableWidgetItem(description))
-        table_field.setItem(
-            num_rows, 3 + offset, QtWidgets.QTableWidgetItem(self.add_commas(total_value)))
-
-        if article_state:
-            table_field.setItem(
-                num_rows, 4 + offset, QtWidgets.QTableWidgetItem(article_state))
+                num_rows, index, QtWidgets.QTableWidgetItem(str(field)))
 
     def remove_article_from_table(self, table_field, action_before_removal=None):
         index = table_field.currentRow()
@@ -531,6 +686,11 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 total += self.rem_commas(table_field.item(i, column_id).text())
 
         return total
+    
+    def set_table_column_on_field(self, table_field, column_index, field):
+        row_index = table_field.currentRow()
+        column_content = table_field.item(row_index, column_index).text()
+        field.setText(column_content)
 
     def update_result_field(self, total_field, input_field, result_field, result_field_function):
         total_value = self.rem_commas(total_field.text())
@@ -594,7 +754,6 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         articles = self.get_items_from_table(self.articlesTable)
 
-
         articles_with_state = list(
             map(lambda article: article + ['NE'], articles))
 
@@ -617,9 +776,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         articles = self.get_items_from_table(self.consultArticlesTable)
 
-
         columns_for_printing = list(map(lambda article: article[1:], articles))
-
 
         result = self.process_printing(
             self.billCodeField.text(),

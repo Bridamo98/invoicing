@@ -60,6 +60,30 @@ class dbDriver():
         (_, cursor) = self.run_query(query, [new_balance, id])
         return cursor.rowcount
 
+    def get_clients_from_db(self, phone, name):
+        phone_condition = ' phone LIKE ? ' if phone != '' else ' 1 = 1 '
+        name_condition = ' LOWER(name) LIKE ? ' if name != '' else ' 1 = 1'
+        phone_param = ['%' + phone + '%'] if phone != '' else []
+        name_param = ['%' + name.lower() + '%'] if name != '' else []
+
+        query = 'SELECT * FROM Clients WHERE' + phone_condition + 'AND' + name_condition
+
+        (result, _) = self.run_query(query, phone_param + name_param)
+        list_result = list(result)
+        return list_result if len(list_result) != 0 else None
+
+    def get_bills_from_db(self, phone, state):
+        phone_condition = ' phone = ? ' if phone != '' else ' 1 = 1 '
+        state_condition = ' state = ? ' if state != '-' else ' 1 = 1 '
+        phone_param = [phone] if phone != '' else []
+        state_param = [state] if state != '-' else []
+
+        query = 'SELECT * FROM Bills WHERE ' + phone_condition + 'AND' + state_condition + 'ORDER BY id DESC'
+
+        (result, _) = self.run_query(query, phone_param + state_param)
+        list_result = list(result)
+        return list_result if len(list_result) != 0 else None
+
     def get_client_from_db(self, phone=None):
         query = 'SELECT * FROM Clients WHERE phone = ?'
         (result, _) = self.run_query(query, [phone])
@@ -268,7 +292,7 @@ class utils(dbDriver, formater, printerDriver):
         validator = QtGui.QRegExpValidator(regex)
         field.setValidator(validator)
 
-    def ckeck_if_can_remove_article(self, table_field, remove_button, column_id = None, required_value = None):
+    def ckeck_if_can_do_action_on_table(self, table_field, remove_button, column_id = None, required_value = None):
         if len(table_field.selectionModel().selectedRows()) > 0:
             if column_id or required_value:
                 selected_row = table_field.currentRow()
