@@ -467,10 +467,11 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         if bill:
             (code, phone, total_articles, total,
-             deposit, deposit_for_cancelation, balance, state, generation_date, _) = bill
+             deposit, deposit_for_cancelation, balance, state, generation_date, cancelation_date) = bill
             (_, name) = self.get_client_from_db(phone)
             self.billCodeField.setText(str(code))
             self.generationDateField.setText(generation_date)
+            self.cancelationDateField.setText(cancelation_date if cancelation_date else '-')
             self.telField.setText(str(phone))
             self.nameField.setText(name)
 
@@ -716,6 +717,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.findBillField.setText("")
         self.billCodeField.setText("")
         self.generationDateField.setText("")
+        self.cancelationDateField.setText("")
         self.telField.setText("")
         self.nameField.setText("")
         self.consultArticlesTable.setRowCount(0)
@@ -761,7 +763,9 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
             str(bill_id),
             self.findClientNameField.text(),
             self.findClientTelField.text(),
+            'Sin entregar',
             str(generation_date),
+            '-',
             articles_with_state,
             self.totalArticlesField.text(),
             self.totalField.text(),
@@ -780,9 +784,11 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         result = self.process_printing(
             self.billCodeField.text(),
-            self.findClientNameField.text(),
-            self.findClientTelField.text(),
+            self.nameField.text(),
+            self.telField.text(),
+            self.billStateField.text(),
             self.generationDateField.text(),
+            self.cancelationDateField.text(),
             columns_for_printing,
             self.queryTotalArticlesField.text(),
             self.queryTotalField.text(),

@@ -171,7 +171,7 @@ class printerDriver():
     def __init__(self):
         pass
 
-    def process_printing(self, bill_id, name, phone, generation_date, articles, total_articles, total, deposit, balance, subject):
+    def process_printing(self, bill_id, name, phone, state, generation_date, cancelation_date, articles, total_articles, total, deposit, balance, subject):
         
         first_part = """
             <head>
@@ -188,7 +188,10 @@ class printerDriver():
             <p style="text-align: center;"><strong>Código:</strong> """ + bill_id + """</p>
             <p style="text-align: center;"><strong>Nombre:</strong> """ + name + """</p>
             <p style="text-align: center;"><strong>Teléfono:</strong> """ + phone + """</p>
-            <p style="text-align: center;"><strong>Fecha:</strong> """ + generation_date + """</p>
+            <p style="text-align: center;"><strong>Estado:</strong> """ + state + """</p>
+            <p style="text-align: center;"><strong>Fecha gen:</strong> """ + generation_date + """</p>
+            <p style="text-align: center;"><strong>Fecha can:</strong> """ + cancelation_date + """</p>
+            <p style="text-align: center;"><strong>Contacto: 3203198958</strong></p>
             <p style="text-align: center;"><strong>ARTÍCULOS</strong></p>
             <table style="border-collapse: collapse; width: 100%; height: 72px;" border="1">
                 <tbody>

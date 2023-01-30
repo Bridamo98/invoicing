@@ -1297,7 +1297,7 @@
       <widget class="QLineEdit" name="generationDateField">
        <property name="geometry">
         <rect>
-         <x>554</x>
+         <x>434</x>
          <y>80</y>
          <width>161</width>
          <height>20</height>
@@ -1313,7 +1313,7 @@
       <widget class="QLabel" name="label_57">
        <property name="geometry">
         <rect>
-         <x>440</x>
+         <x>320</x>
          <y>80</y>
          <width>101</width>
          <height>20</height>
@@ -1337,6 +1337,35 @@
        </property>
        <property name="text">
         <string>Anular</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_63">
+       <property name="geometry">
+        <rect>
+         <x>616</x>
+         <y>80</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Fecha de cancelación</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="cancelationDateField">
+       <property name="geometry">
+        <rect>
+         <x>730</x>
+         <y>80</y>
+         <width>161</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </widget>
