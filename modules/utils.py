@@ -14,6 +14,9 @@ GHOSTSCRIPT_PATH = parent_path + "\\static_dependencies\\GHOSTSCRIPT\\bin\\gswin
 GSPRINT_PATH = parent_path + "\\static_dependencies\\GSPRINT\\gsprint.exe"
 WKHTMLTOPDF_PATH = parent_path + "\\static_dependencies\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
 
+fst_line_title_bill = 'GAMUZAS, CUERO & COLOR' #Depends on business information
+snd_line_title_bill = 'LAVANDERÍA Y TINTORERÍA' #Depends on business information
+contact_phone = '3203198958' #Depends on business information
 page_height = '297mm' #Depends on POS Printer dimensions
 page_width = '72.1mm' #Depends on POS Printer dimensions
 dpi = '203' #Depends on POS Printer dimensions
@@ -177,21 +180,21 @@ class printerDriver():
             <head>
                 <meta charset="UTF-8">
                 <style>
+                .code { font-size: 25px; }
                 p { font-size: 18px; margin-bottom:0; margin : 0; padding-top:0;}
                 li { font-size: 18px; }
                 </style>
             </head>
-            <h1 style="text-align: center;"><span style="text-decoration: underline; background-color: #999999;">GAMUZAS, CUERO &
-                    COLOR</span></h1>
-            <h4 style="text-align: center;"><span style="color: #808080;">LAVANDERÍA Y TINTORERÍA</span></h4>
+            <h1 style="text-align: center;"><span style="text-decoration: underline; background-color: #999999;">""" + fst_line_title_bill + """</span></h1>
+            <h4 style="text-align: center;"><span style="color: #808080;">""" + snd_line_title_bill + """</span></h4>
             <p style="text-align: center;"><strong>""" + subject + """</strong></p>
-            <p style="text-align: center;"><strong>Código:</strong> """ + bill_id + """</p>
+            <p style="text-align: center;"><strong class="code">Código: """ + bill_id + """</strong ></p>
             <p style="text-align: center;"><strong>Nombre:</strong> """ + name + """</p>
             <p style="text-align: center;"><strong>Teléfono:</strong> """ + phone + """</p>
             <p style="text-align: center;"><strong>Estado:</strong> """ + state + """</p>
             <p style="text-align: center;"><strong>Fecha gen:</strong> """ + generation_date + """</p>
             <p style="text-align: center;"><strong>Fecha can:</strong> """ + cancelation_date + """</p>
-            <p style="text-align: center;"><strong>Contacto: 3203198958</strong></p>
+            <p style="text-align: center;"><strong>Contacto: """ + contact_phone + """</strong></p>
             <p style="text-align: center;"><strong>ARTÍCULOS</strong></p>
             <table style="border-collapse: collapse; width: 100%; height: 72px;" border="1">
                 <tbody>
@@ -281,8 +284,7 @@ class utils(dbDriver, formater, printerDriver):
         ckeck_results = map(lambda field:
                             field.text() != ''
                             and field.text() != '0'
-                            and field.text() != 'Entregado'
-                            and field.text() != 'Anulado',
+                            and field.text() != 'Entregado',
                             fields_to_be_ckeck)
 
         if all(ckeck_results):

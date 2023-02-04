@@ -495,6 +495,17 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 self, "ERROR", "No existe una factura con el código ingresado")
 
     def increase_deposit(self, code):
+
+        deposit_is_valid = self.check_deposit(
+            self.queryBalanceField.text(), self.queryIncreaseDepositField.text())
+        
+        if not deposit_is_valid:
+
+            QtWidgets.QMessageBox.about(
+                self, "ERROR", "El deposito ingresado no es permitido")
+            
+            return
+
         increase = self.rem_commas(self.queryIncreaseDepositField.text())
         self.queryIncreaseDepositField.setText("0")
 
