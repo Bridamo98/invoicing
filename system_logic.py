@@ -4,8 +4,11 @@
 
 from pickle import TRUE
 from modules.utils import *
-from datetime import datetime
-import time
+import datetime
+from time import sleep
+
+DATETIME_FORMAT = "%d/%m/%Y %H:%M"
+DATE_FORMAT = "%d/%m/%Y"
 
 
 class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
@@ -393,7 +396,101 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         
         self.init_filter_totals()
 
+        # currentDayReportButton -----------------------------------------------------------------------------------------------
 
+        self.currentDayReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('current day')))
+        
+        # pastDayReportButton -----------------------------------------------------------------------------------------------
+
+        self.pastDayReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('past day')))
+
+        # currentWeekReportButton -----------------------------------------------------------------------------------------------
+
+        self.currentWeekReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('current week')))
+        
+        # pastWeekReportButton -----------------------------------------------------------------------------------------------
+
+        self.pastWeekReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('past week')))
+        
+        # currentMonthReportButton -----------------------------------------------------------------------------------------------
+
+        self.currentMonthReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('current month')))
+        
+        # pastMonthReportButton -----------------------------------------------------------------------------------------------
+
+        self.pastMonthReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('past month')))
+
+        # currentYearReportButton -----------------------------------------------------------------------------------------------
+
+        self.currentYearReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('current year')))
+
+        # pastYearReportButton -----------------------------------------------------------------------------------------------
+
+        self.pastYearReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('past year')))
+        
+        self.tabWidget.removeTab(4)
+
+
+    def generate_report(self, date_range):
+        (initial_datetime, final_datetime) = date_range
+        print(initial_datetime, final_datetime)
+    
+    def get_date_range(self, report_type):
+        now = datetime.datetime.now()
+        initial_datetime = ''
+        final_datetime = ''
+        initial_time = '00:00'
+        final_time = '23:59'
+        
+        if report_type =='current day':
+            initial_datetime = now.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = now.strftime(DATE_FORMAT) + ' ' + final_time
+        elif report_type =='past day':
+            past_day = now - datetime.timedelta(days=1)
+            initial_datetime = past_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = past_day.strftime(DATE_FORMAT) + ' ' + final_time
+        elif report_type =='current week':
+            current_week_initial_day = now - datetime.timedelta(days = now.weekday())
+            current_week_final_day = now + datetime.timedelta(days = 6 - now.weekday())
+            initial_datetime = current_week_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = current_week_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        elif report_type =='past week':
+            past_week_initial_day = now - datetime.timedelta(days = 7 + now.weekday())
+            past_week_final_day = now - datetime.timedelta(days = now.weekday() + 1)
+            initial_datetime = past_week_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = past_week_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        elif report_type =='current month':
+            current_month_initial_day = datetime.datetime.strptime('01' + '/' + now.strftime("%m") + '/' + now.strftime("%Y"), DATE_FORMAT)
+            next_month_firts_day = datetime.datetime.strptime('01' + '/' + str(int(now.strftime("%m")) + 1) + '/' + now.strftime("%Y"), DATE_FORMAT)
+            current_month_final_day = next_month_firts_day - datetime.timedelta(days = 1)
+            initial_datetime = current_month_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = current_month_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        elif report_type =='past month':
+            past_month_initial_day = datetime.datetime.strptime('01' + '/' + str(int(now.strftime("%m")) - 1) + '/' + now.strftime("%Y"), DATE_FORMAT)
+            current_month_initial_day = datetime.datetime.strptime('01' + '/' + now.strftime("%m") + '/' + now.strftime("%Y"), DATE_FORMAT)
+            past_month_final_day = current_month_initial_day - datetime.timedelta(days = 1)
+            initial_datetime = past_month_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = past_month_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        if report_type =='current year':
+            current_year_initial_day = datetime.datetime.strptime('01/01/' + now.strftime("%Y"), DATE_FORMAT)
+            current_year_final_day = datetime.datetime.strptime('31/12/' + now.strftime("%Y"), DATE_FORMAT)
+            initial_datetime = current_year_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = current_year_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        if report_type =='past year':
+            past_year_initial_day = datetime.datetime.strptime('01' + '/01/' + str(int(now.strftime("%Y")) - 1), DATE_FORMAT)
+            past_year_final_day = datetime.datetime.strptime('31' + '/12/' + str(int(now.strftime("%Y")) - 1), DATE_FORMAT)
+            initial_datetime = past_year_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
+            final_datetime = past_year_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        
+        return(initial_datetime, final_datetime)
 
     def update_filter_bills_totals_handler(self, field, field_type):
     
@@ -535,7 +632,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
     def cancel_bill(self, code):
         now = datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M")
+        dt_string = now.strftime(DATETIME_FORMAT)
         affected_bill = self.update_bill_state_in_db(
             code, 'Entregado', dt_string)
 
@@ -845,7 +942,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
             if client_id != 0:
                 now = datetime.now()
-                dt_string = now.strftime("%d/%m/%Y %H:%M")
+                dt_string = now.strftime(DATETIME_FORMAT)
 
                 bill_id = self.save_bill_to_db(
                     int(self.findClientTelField.text()),
@@ -864,7 +961,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 else:
                     self.save_articles(bill_id)
                     self.print_bill_on_generation(bill_id, dt_string, "RECIBO")
-                    time.sleep(0.5)
+                    sleep(0.5)
                     self.print_bill_on_generation(bill_id, dt_string, "COPIA")
                     QtWidgets.QMessageBox.about(
                         self, "OK", "Factura generada exitosamente")

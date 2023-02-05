@@ -2001,7 +2001,7 @@
        <enum>Qt::Vertical</enum>
       </property>
      </widget>
-     <widget class="QPushButton" name="lastDayReportButton">
+     <widget class="QPushButton" name="pastDayReportButton">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -2027,7 +2027,7 @@
        <string>Semana actual</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="lastWeekReportButton">
+     <widget class="QPushButton" name="pastWeekReportButton">
       <property name="geometry">
        <rect>
         <x>350</x>
@@ -2053,7 +2053,7 @@
        <string>Mes actual</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="lastMonthReportButton">
+     <widget class="QPushButton" name="pastMonthReportButton">
       <property name="geometry">
        <rect>
         <x>540</x>
@@ -2079,7 +2079,7 @@
        <string>Año actual</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="lastYearReportButton">
+     <widget class="QPushButton" name="pastYearReportButton">
       <property name="geometry">
        <rect>
         <x>720</x>
@@ -2287,16 +2287,6 @@
       <property name="title">
        <string>RANGO DE FECHAS MANUAL</string>
       </property>
-      <widget class="QDateTimeEdit" name="initialDateField">
-       <property name="geometry">
-        <rect>
-         <x>160</x>
-         <y>240</y>
-         <width>194</width>
-         <height>22</height>
-        </rect>
-       </property>
-      </widget>
       <widget class="QCalendarWidget" name="initialDateCalendar">
        <property name="geometry">
         <rect>
@@ -2318,16 +2308,6 @@
        </property>
        <property name="text">
         <string>FECHA INICIAL</string>
-       </property>
-      </widget>
-      <widget class="QDateTimeEdit" name="finalDateField">
-       <property name="geometry">
-        <rect>
-         <x>530</x>
-         <y>240</y>
-         <width>194</width>
-         <height>22</height>
-        </rect>
        </property>
       </widget>
       <widget class="QLabel" name="label_65">
@@ -2357,7 +2337,7 @@
        <property name="geometry">
         <rect>
          <x>390</x>
-         <y>280</y>
+         <y>260</y>
          <width>91</width>
          <height>23</height>
         </rect>
