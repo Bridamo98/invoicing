@@ -57,6 +57,10 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         fields_to_undo_bill = [self.billCodeField, self.billStateField]
 
+
+        self.tabWidget.removeTab(4)
+
+
         # findClientTelField -----------------------------------------------------------------------------------------------
 
         self.set_regex_validator("[0-9_]+", self.findClientTelField)
@@ -336,7 +340,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.set_regex_validator("[0-9_]+", self.filterBillsPhoneField)
 
         self.filterBillsPhoneField.textChanged.connect(
-            lambda: self.filter_bills_table(self.filterBillsPhoneField.text(), self.filterBillsStateField.currentText()))
+            lambda: self.fill_bills_table(self.filterBillsTable, self.filterBillsPhoneField.text(), self.filterBillsStateField.currentText()))
         
         self.update_filter_bills_totals_handler(self.filterBillsPhoneField, 'text_input')
         
@@ -351,7 +355,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.filterBillsStateField.addItem('Entregado')
 
         self.filterBillsStateField.currentTextChanged.connect(
-            lambda: self.filter_bills_table(self.filterBillsPhoneField.text(), self.filterBillsStateField.currentText()))
+            lambda: self.fill_bills_table(self.filterBillsTable, self.filterBillsPhoneField.text(), self.filterBillsStateField.currentText()))
         
         self.update_filter_bills_totals_handler(self.filterBillsStateField, 'combo_box')
 
@@ -369,7 +373,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.filterBillsTable.setColumnWidth(8, 110)
         self.filterBillsTable.setColumnWidth(9, 110)
 
-        self.filter_bills_table()
+        self.fill_bills_table(self.filterBillsTable)
 
         # filterBillsNumberField -----------------------------------------------------------------------------------------------
 
@@ -399,49 +403,157 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         # currentDayReportButton -----------------------------------------------------------------------------------------------
 
         self.currentDayReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('current day')))
+            lambda: self.generate_report(self.get_date_range('current day'), 'Dia actual'))
         
         # pastDayReportButton -----------------------------------------------------------------------------------------------
 
         self.pastDayReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('past day')))
+            lambda: self.generate_report(self.get_date_range('past day'), 'Dia anterior'))
 
         # currentWeekReportButton -----------------------------------------------------------------------------------------------
 
         self.currentWeekReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('current week')))
+            lambda: self.generate_report(self.get_date_range('current week'), 'Semana actual'))
         
         # pastWeekReportButton -----------------------------------------------------------------------------------------------
 
         self.pastWeekReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('past week')))
+            lambda: self.generate_report(self.get_date_range('past week'), 'Semana anterior'))
         
         # currentMonthReportButton -----------------------------------------------------------------------------------------------
 
         self.currentMonthReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('current month')))
+            lambda: self.generate_report(self.get_date_range('current month'), 'Mes actual'))
         
         # pastMonthReportButton -----------------------------------------------------------------------------------------------
 
         self.pastMonthReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('past month')))
+            lambda: self.generate_report(self.get_date_range('past month'), 'Mes anterior'))
 
         # currentYearReportButton -----------------------------------------------------------------------------------------------
 
         self.currentYearReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('current year')))
+            lambda: self.generate_report(self.get_date_range('current year'), 'Año actual'))
 
         # pastYearReportButton -----------------------------------------------------------------------------------------------
 
         self.pastYearReportButton.clicked.connect(
-            lambda: self.generate_report(self.get_date_range('past year')))
+            lambda: self.generate_report(self.get_date_range('past year'), 'Año anterior'))
         
-        self.tabWidget.removeTab(4)
+        # reportGeneratedBillsTable -----------------------------------------------------------------------------------------------
+
+        self.reportGeneratedBillsTable.setColumnWidth(0, 60)
+        self.reportGeneratedBillsTable.setColumnWidth(1, 100)
+        self.reportGeneratedBillsTable.setColumnWidth(2, 30)
+        self.reportGeneratedBillsTable.setColumnWidth(3, 90)
+        self.reportGeneratedBillsTable.setColumnWidth(4, 90)
+        self.reportGeneratedBillsTable.setColumnWidth(5, 90)
+        self.reportGeneratedBillsTable.setColumnWidth(6, 90)
+        self.reportGeneratedBillsTable.setColumnWidth(7, 100)
+        self.reportGeneratedBillsTable.setColumnWidth(8, 110)
+        self.reportGeneratedBillsTable.setColumnWidth(9, 110)
+
+        # reportCanceledBillsTable -----------------------------------------------------------------------------------------------
+
+        self.reportCanceledBillsTable.setColumnWidth(0, 60)
+        self.reportCanceledBillsTable.setColumnWidth(1, 100)
+        self.reportCanceledBillsTable.setColumnWidth(2, 30)
+        self.reportCanceledBillsTable.setColumnWidth(3, 90)
+        self.reportCanceledBillsTable.setColumnWidth(4, 90)
+        self.reportCanceledBillsTable.setColumnWidth(5, 90)
+        self.reportCanceledBillsTable.setColumnWidth(6, 90)
+        self.reportCanceledBillsTable.setColumnWidth(7, 100)
+        self.reportCanceledBillsTable.setColumnWidth(8, 110)
+        self.reportCanceledBillsTable.setColumnWidth(9, 110)
+        
+        # reportEnteredNumberField -----------------------------------------------------------------------------------------------
+
+        # reportBilledMoneyField -----------------------------------------------------------------------------------------------
+
+        self.reportBilledMoneyField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.reportBilledMoneyField))
+
+        # reportEnteredDepositField -----------------------------------------------------------------------------------------------
+
+        self.reportEnteredDepositField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.reportEnteredDepositField))
+        
+        # reportDeliveredNumberField -----------------------------------------------------------------------------------------------
+
+        # reportEnteredMoneyField -----------------------------------------------------------------------------------------------
+
+        self.reportEnteredMoneyField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.reportEnteredMoneyField))
+        
+        # reportTotalEnteredMoneyField -----------------------------------------------------------------------------------------------
+
+        self.reportTotalEnteredMoneyField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.reportTotalEnteredMoneyField))
+        
+
+        # currentStateEnteredNumberField -----------------------------------------------------------------------------------------------
+
+        # currentStateBilledMoneyField -----------------------------------------------------------------------------------------------
+
+        self.currentStateBilledMoneyField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.currentStateBilledMoneyField))
+
+        # currentStateNumberField -----------------------------------------------------------------------------------------------
+
+        # currentStateDeliveredNumberField -----------------------------------------------------------------------------------------------
+        
+        # currentStateEnteredMoneyField -----------------------------------------------------------------------------------------------
+
+        self.currentStateEnteredMoneyField.textChanged.connect(
+            lambda: self.add_thousand_separators_format(self.currentStateEnteredMoneyField))
+
+        self.fill_current_state_report()
+    
+
+    def fill_current_state_report(self):
+        
+        now = datetime.datetime.now()
+        dt_string = now.strftime(DATETIME_FORMAT)
+
+        entered_total_articles = self.get_bills_from_db(final_date = dt_string, date_field = 'generation_date', select_content='sum(total_articles)')
+        billed_total = self.get_bills_from_db(final_date = dt_string, date_field = 'generation_date', select_content='sum(total)')
+
+        #number = self.get_bills_from_db(final_date = dt_string, date_field = 'generation_date', select_content='sum(total_articles)')
+
+        delivered_total_articles = self.get_bills_from_db(final_date = dt_string, date_field = 'cancelation_date', select_content='sum(total_articles)')
+        entered_total = self.get_bills_from_db(final_date = dt_string, date_field = 'cancelation_date', select_content='sum(total)')
+
+        self.currentStateEnteredNumberField.setText(str(entered_total_articles[0]))
+
+        self.currentStateBilledMoneyField.setText(str(billed_total[0]))
+        
+        # currentStateNumberField
+
+        self.currentStateDeliveredNumberField.setText(str(delivered_total_articles[0]))
+        
+        self.currentStateEnteredMoneyField.setText(str(entered_total[0]))
 
 
-    def generate_report(self, date_range):
+    def generate_report(self, date_range, report_type):
         (initial_datetime, final_datetime) = date_range
-        print(initial_datetime, final_datetime)
+
+        self.reportType.setText(report_type)
+        self.initialDateField.setText(initial_datetime)
+        self.finalDateField.setText(final_datetime)
+
+        self.fill_bills_table(self.reportGeneratedBillsTable, initial_date=initial_datetime, final_date=final_datetime, date_field='generation_date')
+        
+        self.sum_column_on_field(self.reportGeneratedBillsTable, self.reportEnteredNumberField, 2)
+        self.sum_column_on_field(self.reportGeneratedBillsTable, self.reportBilledMoneyField, 3)
+        self.sum_column_on_field(self.reportGeneratedBillsTable, self.reportEnteredDepositField, 4)
+
+        self.fill_bills_table(self.reportCanceledBillsTable, initial_date=initial_datetime, final_date=final_datetime, date_field='cancelation_date')
+
+        self.sum_column_on_field(self.reportCanceledBillsTable, self.reportDeliveredNumberField, 2)
+        self.sum_column_on_field(self.reportCanceledBillsTable, self.reportEnteredMoneyField, 3)
+
+        self.update_result_field(
+            self.reportEnteredDepositField, self.reportEnteredMoneyField, self.reportTotalEnteredMoneyField, self.simple_add_result_function)
     
     def get_date_range(self, report_type):
         now = datetime.datetime.now()
@@ -576,7 +688,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 for article in articles:
                     (article_id, _, number, service, description,
                      value, article_state) = article
-                    self.add_rows_to_table(
+                    self.add_row_to_table(
                         self.consultArticlesTable, [article_id, number, service, description, self.add_commas(value), article_state])
 
             self.queryTotalArticlesField.setText(str(total_articles))
@@ -631,7 +743,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                 self, "OK", "Abono incrementado correctamente")
 
     def cancel_bill(self, code):
-        now = datetime.now()
+        now = datetime.datetime.now()
         dt_string = now.strftime(DATETIME_FORMAT)
         affected_bill = self.update_bill_state_in_db(
             code, 'Entregado', dt_string)
@@ -706,19 +818,19 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         if clients:
             for client in clients:
                 (phone, name) = client
-                self.add_rows_to_table(self.filterClientsTable, [phone, name])
+                self.add_row_to_table(self.filterClientsTable, [phone, name])
 
-    def filter_bills_table(self, phone = '', state = '-'):
-        self.filterBillsTable.setRowCount(0)
+    def fill_bills_table(self, table_field, phone = '', state = '-', initial_date = '', final_date = '', date_field = ''):
+        table_field.setRowCount(0)
 
-        bills = self.get_bills_from_db(phone, state)
+        bills = self.get_bills_from_db(phone=phone, state=state, initial_date=initial_date, final_date=final_date, date_field=date_field)
 
         if bills:
             for bill in bills:
                 (code, phone, total_articles, total,
                     deposit, deposit_for_cancelation, balance, state, generation_date, cancelation_date) = bill
-                self.add_rows_to_table(
-                    self.filterBillsTable,
+                self.add_row_to_table(
+                    table_field,
                     [
                         str(code), str(phone), str(total_articles), self.add_commas(total), self.add_commas(deposit),
                         self.add_commas(deposit_for_cancelation), self.add_commas(balance), state, generation_date, cancelation_date if cancelation_date else '-'
@@ -747,7 +859,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
     def add_article_on_creation(self):
 
-        self.add_rows_to_table(
+        self.add_row_to_table(
             self.articlesTable,
             [
                 int(self.articlesNumberField.text()),
@@ -759,10 +871,10 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
     def add_article_on_consult(self, article_id, number, service, description, value, article_state):
 
-        self.add_rows_to_table(
+        self.add_row_to_table(
             self.consultArticlesTable, [article_id, number, service, description, self.add_commas(value), article_state])
 
-    def add_rows_to_table(self, table_field, fields):
+    def add_row_to_table(self, table_field, fields):
         num_rows = table_field.rowCount()
         table_field.insertRow(num_rows)
 
@@ -809,6 +921,9 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
     def simple_result_function(self, first_input, second_input):
         return (first_input - second_input)
+
+    def simple_add_result_function(self, first_input, second_input):
+        return (first_input + second_input)
 
     def coalesce_result_function(self, first_input, second_input):
         return (first_input - second_input) if first_input >= second_input else 0
@@ -941,7 +1056,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
                         self, "OK", "Se ha guardado el cliente {} con el numero de teléfono {}".format(self.findClientNameField.text(), self.findClientTelField.text()))
 
             if client_id != 0:
-                now = datetime.now()
+                now = datetime.datetime.now()
                 dt_string = now.strftime(DATETIME_FORMAT)
 
                 bill_id = self.save_bill_to_db(

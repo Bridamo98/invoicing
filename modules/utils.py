@@ -75,17 +75,30 @@ class dbDriver():
         list_result = list(result)
         return list_result if len(list_result) != 0 else None
 
-    def get_bills_from_db(self, phone, state):
+    def get_bills_from_db(self, phone = '', state = '-', initial_date = '', final_date = '', date_field = '', select_content='*'):
+
+        generation_date = self.format_date_column_for_comparison(date_field) if date_field != '' else ''
+
         phone_condition = ' phone = ? ' if phone != '' else ' 1 = 1 '
         state_condition = ' state = ? ' if state != '-' else ' 1 = 1 '
+
+        initial_date_condition = ' ' + generation_date +' >= ? ' if initial_date != '' else ' 1 = 1 '
+        final_date_condition = ' ' + generation_date +' <= ? ' if final_date != '' else ' 1 = 1 '
+
         phone_param = [phone] if phone != '' else []
         state_param = [state] if state != '-' else []
 
-        query = 'SELECT * FROM Bills WHERE ' + phone_condition + 'AND' + state_condition + 'ORDER BY id DESC'
+        initial_date_imp = self.format_date_for_comparison(initial_date) if initial_date != '' else None
+        final_date_imp = self.format_date_for_comparison(final_date) if final_date != '' else None
 
-        (result, _) = self.run_query(query, phone_param + state_param)
+        initial_date_param = [initial_date_imp] if initial_date != '' else []
+        final_date_param = [final_date_imp] if final_date != '' else []
+
+        query = 'SELECT ' + select_content + ' FROM Bills WHERE ' + phone_condition + 'AND' + state_condition + 'AND' + initial_date_condition + 'AND' + final_date_condition + 'ORDER BY id DESC'
+
+        (result, _) = self.run_query(query, phone_param + state_param + initial_date_param + final_date_param)
         list_result = list(result)
-        return list_result if len(list_result) != 0 else None
+        return (list_result if select_content == '*' else list_result[0]) if len(list_result) != 0 else None
 
     def get_client_from_db(self, phone=None):
         query = 'SELECT * FROM Clients WHERE phone = ?'
@@ -150,6 +163,12 @@ class dbDriver():
             result = cursor.execute(query, parameters)
             conn.commit()
         return (result, cursor)
+    
+    def format_date_column_for_comparison(self, column):
+        return 'substr(' + column + ',7,4)||substr(' + column + ',4,2)||substr(' + column + ',1,2)||substr(' + column + ',12,2)||substr(' + column + ',15,2)'
+    
+    def format_date_for_comparison(self, date):
+        return date[6:10] + date[3:5] + date[0:2] + date[11:13] + date[14:16]
 
 
 class formater():
@@ -180,15 +199,15 @@ class printerDriver():
             <head>
                 <meta charset="UTF-8">
                 <style>
-                .code { font-size: 25px; }
+                .code { font-size: 40px; }
                 p { font-size: 18px; margin-bottom:0; margin : 0; padding-top:0;}
                 li { font-size: 18px; }
                 </style>
             </head>
             <h1 style="text-align: center;"><span style="text-decoration: underline; background-color: #999999;">""" + fst_line_title_bill + """</span></h1>
             <h4 style="text-align: center;"><span style="color: #808080;">""" + snd_line_title_bill + """</span></h4>
+            <p style="text-align: center;"><strong class="code">""" + bill_id + """</strong ></p>
             <p style="text-align: center;"><strong>""" + subject + """</strong></p>
-            <p style="text-align: center;"><strong class="code">Código: """ + bill_id + """</strong ></p>
             <p style="text-align: center;"><strong>Nombre:</strong> """ + name + """</p>
             <p style="text-align: center;"><strong>Teléfono:</strong> """ + phone + """</p>
             <p style="text-align: center;"><strong>Estado:</strong> """ + state + """</p>
