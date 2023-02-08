@@ -9,7 +9,7 @@ from time import sleep
 
 DATETIME_FORMAT = "%d/%m/%Y %H:%M"
 DATE_FORMAT = "%d/%m/%Y"
-
+PYTHON_DATE_FORMAT = "dd/MM/yyyy"
 
 class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
@@ -359,7 +359,6 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         
         self.update_filter_bills_totals_handler(self.filterBillsStateField, 'combo_box')
 
-
         # filterBillsTable -----------------------------------------------------------------------------------------------
 
         self.filterBillsTable.setColumnWidth(0, 60)
@@ -376,7 +375,6 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.fill_bills_table(self.filterBillsTable)
 
         # filterBillsNumberField -----------------------------------------------------------------------------------------------
-
 
         # filterBillsTotalField -----------------------------------------------------------------------------------------------
         
@@ -440,6 +438,9 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.pastYearReportButton.clicked.connect(
             lambda: self.generate_report(self.get_date_range('past year'), 'Año anterior'))
         
+        self.generateReportButton.clicked.connect(
+            lambda: self.generate_report(self.get_date_range('custom'), 'Manual'))
+
         # reportGeneratedBillsTable -----------------------------------------------------------------------------------------------
 
         self.reportGeneratedBillsTable.setColumnWidth(0, 60)
@@ -508,34 +509,38 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
             lambda: self.add_thousand_separators_format(self.currentStateEnteredMoneyField))
 
         self.fill_current_state_report()
-    
 
     def fill_current_state_report(self):
+
+        entered_total_articles = self.get_bills_from_db(select_content='coalesce(sum(total_articles),0)')
+        billed_total = self.get_bills_from_db(select_content='coalesce(sum(total),0)')
+
+        number = self.get_articles_from_db(state='NE', select_content='coalesce(sum(number),0)')
+        delivered_total_articles = self.get_articles_from_db(state='E', select_content='coalesce(sum(number),0)')
+
+        entered_total = self.get_bills_from_db(state='Entregado', select_content='coalesce(sum(total),0)')
+
+        self.currentStateEnteredNumberField.setText(str(entered_total_articles[0][0]))
+
+        self.currentStateBilledMoneyField.setText(str(billed_total[0][0]))
         
-        now = datetime.datetime.now()
-        dt_string = now.strftime(DATETIME_FORMAT)
+        self.currentStateNumberField.setText(str(number[0][0]))
 
-        entered_total_articles = self.get_bills_from_db(final_date = dt_string, date_field = 'generation_date', select_content='sum(total_articles)')
-        billed_total = self.get_bills_from_db(final_date = dt_string, date_field = 'generation_date', select_content='sum(total)')
-
-        #number = self.get_bills_from_db(final_date = dt_string, date_field = 'generation_date', select_content='sum(total_articles)')
-
-        delivered_total_articles = self.get_bills_from_db(final_date = dt_string, date_field = 'cancelation_date', select_content='sum(total_articles)')
-        entered_total = self.get_bills_from_db(final_date = dt_string, date_field = 'cancelation_date', select_content='sum(total)')
-
-        self.currentStateEnteredNumberField.setText(str(entered_total_articles[0]))
-
-        self.currentStateBilledMoneyField.setText(str(billed_total[0]))
+        self.currentStateDeliveredNumberField.setText(str(delivered_total_articles[0][0]))
         
-        # currentStateNumberField
-
-        self.currentStateDeliveredNumberField.setText(str(delivered_total_articles[0]))
-        
-        self.currentStateEnteredMoneyField.setText(str(entered_total[0]))
-
+        self.currentStateEnteredMoneyField.setText(str(entered_total[0][0]))
 
     def generate_report(self, date_range, report_type):
+
         (initial_datetime, final_datetime) = date_range
+
+        date_initial_datetime = datetime.datetime.strptime(initial_datetime, DATETIME_FORMAT)
+        date_final_datetime = datetime.datetime.strptime(final_datetime, DATETIME_FORMAT)
+
+        if date_final_datetime < date_initial_datetime:
+            QtWidgets.QMessageBox.about(
+                self, "ERROR", "La fecha inicial es mayor a la fecha final")
+            return
 
         self.reportType.setText(report_type)
         self.initialDateField.setText(initial_datetime)
@@ -601,6 +606,11 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
             past_year_final_day = datetime.datetime.strptime('31' + '/12/' + str(int(now.strftime("%Y")) - 1), DATE_FORMAT)
             initial_datetime = past_year_initial_day.strftime(DATE_FORMAT) + ' ' + initial_time
             final_datetime = past_year_final_day.strftime(DATE_FORMAT) + ' ' + final_time
+        if report_type =='custom':
+            custom_initial_day = self.initialDateCalendar.selectedDate()
+            custom_final_day = self.finalDateCalendar.selectedDate()
+            initial_datetime = custom_initial_day.toString(PYTHON_DATE_FORMAT) + ' ' + initial_time
+            final_datetime = custom_final_day.toString(PYTHON_DATE_FORMAT) + ' ' + final_time
         
         return(initial_datetime, final_datetime)
 
@@ -670,7 +680,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
     def find_bill(self, id):
         bill = self.get_bill_from_db(id)
-        articles = self.get_articles_from_db(id)
+        articles = self.get_articles_from_db(id=id)
 
         self.reset_bill_consult_fields()
 

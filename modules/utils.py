@@ -98,7 +98,7 @@ class dbDriver():
 
         (result, _) = self.run_query(query, phone_param + state_param + initial_date_param + final_date_param)
         list_result = list(result)
-        return (list_result if select_content == '*' else list_result[0]) if len(list_result) != 0 else None
+        return list_result if len(list_result) != 0 else None
 
     def get_client_from_db(self, phone=None):
         query = 'SELECT * FROM Clients WHERE phone = ?'
@@ -123,10 +123,19 @@ class dbDriver():
         (_, cursor) = self.run_query(query, [bill_code])
         return cursor.rowcount
 
-    def get_articles_from_db(self, id=None):
+    def get_articles_from_db(self, id='', state = '-', select_content='*'):
 
-        query = 'SELECT * FROM Articles WHERE bill_code = ?'
-        (result, _) = self.run_query(query, [id])
+        bill_condition = ' bill_code = ? ' if id != '' else ' 1 = 1 '
+        state_condition = ' state = ? ' if state != '-' else ' 1 = 1 '
+
+        id_param = [id] if id != '' else []
+        state_param = [state] if state != '-' else []
+
+        query = 'SELECT ' + select_content + ' FROM Articles WHERE ' + bill_condition + 'AND' + state_condition + 'ORDER BY id DESC'
+
+        print(query)
+
+        (result, _) = self.run_query(query, id_param + state_param)
         list_result = list(result)
         return list_result if len(list_result) != 0 else None
 
