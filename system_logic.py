@@ -328,12 +328,26 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.filterClientsTable.itemSelectionChanged.connect(
             lambda: self.ckeck_if_can_do_action_on_table(self.filterClientsTable, self.filterBillsButton))
         
+        self.filterClientsTable.itemSelectionChanged.connect(
+            lambda: self.ckeck_if_can_do_action_on_table(self.filterClientsTable, self.editClientButton))
+        
+        self.filterClientsTable.itemSelectionChanged.connect(
+            lambda: self.set_table_column_on_field(self.filterClientsTable, 0, self.editClientPhoneField))
+        
+        self.filterClientsTable.itemSelectionChanged.connect(
+            lambda: self.set_table_column_on_field(self.filterClientsTable, 1, self.editClientNameField))
+        
         # filterBillsButton -----------------------------------------------------------------------------------------------
 
         self.filterBillsButton.clicked.connect(
             lambda: self.set_table_column_on_field(self.filterClientsTable, 0, self.filterBillsPhoneField))
 
         self.update_filter_bills_totals_handler(self.filterBillsButton, 'button')
+
+        # editClientButton -----------------------------------------------------------------------------------------------
+
+        self.editClientButton.clicked.connect(
+            lambda: self.edit_client(self.editClientPhoneField, self.editClientNameField))
 
         # filterBillsPhoneField -----------------------------------------------------------------------------------------------
 
@@ -518,7 +532,9 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         number = self.get_articles_from_db(state='NE', select_content='coalesce(sum(number),0)')
         delivered_total_articles = self.get_articles_from_db(state='E', select_content='coalesce(sum(number),0)')
 
-        entered_total = self.get_bills_from_db(state='Entregado', select_content='coalesce(sum(total),0)')
+        entered_cancelation_money = self.get_bills_from_db(state='Entregado', select_content='coalesce(sum(total),0)')
+        entered_deposits = self.get_bills_from_db(select_content='coalesce(sum(deposit),0)')
+        entered_total = entered_cancelation_money[0][0] + entered_deposits[0][0]
 
         self.currentStateEnteredNumberField.setText(str(entered_total_articles[0][0]))
 
@@ -528,7 +544,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         self.currentStateDeliveredNumberField.setText(str(delivered_total_articles[0][0]))
         
-        self.currentStateEnteredMoneyField.setText(str(entered_total[0][0]))
+        self.currentStateEnteredMoneyField.setText(str(entered_total))
 
     def generate_report(self, date_range, report_type):
 
@@ -555,7 +571,7 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         self.fill_bills_table(self.reportCanceledBillsTable, initial_date=initial_datetime, final_date=final_datetime, date_field='cancelation_date')
 
         self.sum_column_on_field(self.reportCanceledBillsTable, self.reportDeliveredNumberField, 2)
-        self.sum_column_on_field(self.reportCanceledBillsTable, self.reportEnteredMoneyField, 3)
+        self.sum_column_on_field(self.reportCanceledBillsTable, self.reportEnteredMoneyField, 6)
 
         self.update_result_field(
             self.reportEnteredDepositField, self.reportEnteredMoneyField, self.reportTotalEnteredMoneyField, self.simple_add_result_function)
@@ -677,6 +693,23 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         else:
             QtWidgets.QMessageBox.about(
                 self, "ERROR", "No existe un cliente con el teléfono ingresado")
+    
+    def edit_client(self, edit_phone_field, edit_name_field):
+        current_name = self.get_table_column(self.filterClientsTable, 1)
+        print(current_name)
+        print(edit_phone_field.text(), edit_name_field.text())
+        if current_name == edit_name_field.text():
+            QtWidgets.QMessageBox.about(
+                self, "ERROR", "No hay cambios en el nombre")
+        else:
+            affected_client = self.update_client_name(int(self.editClientPhoneField.text()), edit_name_field.text())
+            if affected_client == 0:
+                QtWidgets.QMessageBox.about(
+                self, "ERROR", "No fue posible editar el cliente")
+            else:
+                self.filter_clients_table(self.filterClientsPhoneField.text(), self.filterClientsNameField.text())
+                QtWidgets.QMessageBox.about(
+                    self, "OK", "Cliente editado correctamente")
 
     def find_bill(self, id):
         bill = self.get_bill_from_db(id)
@@ -918,9 +951,13 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
 
         return total
     
+    def get_table_column(self, table_field, column_index):
+        row_index = table_field.currentRow()
+        return table_field.item(row_index, column_index).text()
+    
     def set_table_column_on_field(self, table_field, column_index, field):
         row_index = table_field.currentRow()
-        column_content = table_field.item(row_index, column_index).text()
+        column_content = table_field.item(row_index, column_index).text() if table_field.item(row_index, column_index) else ''
         field.setText(column_content)
 
     def update_result_field(self, total_field, input_field, result_field, result_field_function):

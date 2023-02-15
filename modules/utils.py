@@ -62,6 +62,11 @@ class dbDriver():
         query = "UPDATE Bills SET balance = ? WHERE id = ?"
         (_, cursor) = self.run_query(query, [new_balance, id])
         return cursor.rowcount
+    
+    def update_client_name(self, phone, new_name):
+        query = "UPDATE Clients SET name = ? WHERE phone = ?"
+        (_, cursor) = self.run_query(query, [new_name, phone])
+        return cursor.rowcount
 
     def get_clients_from_db(self, phone, name):
         phone_condition = ' phone LIKE ? ' if phone != '' else ' 1 = 1 '
@@ -208,6 +213,7 @@ class printerDriver():
             <head>
                 <meta charset="UTF-8">
                 <style>
+                .contact { font-size: 22px; }
                 .code { font-size: 40px; }
                 p { font-size: 18px; margin-bottom:0; margin : 0; padding-top:0;}
                 li { font-size: 18px; }
@@ -222,7 +228,6 @@ class printerDriver():
             <p style="text-align: center;"><strong>Estado:</strong> """ + state + """</p>
             <p style="text-align: center;"><strong>Fecha gen:</strong> """ + generation_date + """</p>
             <p style="text-align: center;"><strong>Fecha can:</strong> """ + cancelation_date + """</p>
-            <p style="text-align: center;"><strong>Contacto: """ + contact_phone + """</strong></p>
             <p style="text-align: center;"><strong>ARTÍCULOS</strong></p>
             <table style="border-collapse: collapse; width: 100%; height: 72px;" border="1">
                 <tbody>
@@ -254,7 +259,9 @@ class printerDriver():
             <p style="text-align: center;"><strong>TOTAL PRENDAS:</strong> """ + total_articles + """</p>
             <p style="text-align: center;"><strong>TOTAL:</strong> """ + total + """</p>
             <p style="text-align: center;"><strong>ABONO:</strong> """ + deposit + """</p>
-            <p style="text-align: center;"><strong>SALDO:</strong> """ + balance + """</p>"""
+            <p style="text-align: center;"><strong>SALDO:</strong> """ + balance + """</p>
+            <p style="text-align: center;"><strong class="contact">TEL. CONTACTO: """ + contact_phone + """</strong></p>"""
+        
         
         bill_html = first_part + articles_part + last_part
 
