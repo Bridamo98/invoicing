@@ -13,6 +13,7 @@ parent_path = os.path.abspath(os.path.join(path, os.pardir))
 GHOSTSCRIPT_PATH = parent_path + "\\static_dependencies\\GHOSTSCRIPT\\bin\\gswin32.exe"
 GSPRINT_PATH = parent_path + "\\static_dependencies\\GSPRINT\\gsprint.exe"
 WKHTMLTOPDF_PATH = parent_path + "\\static_dependencies\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+BILL_PDF_PATH = parent_path + "\\static_dependencies\\pdf_generated.pdf"
 
 fst_line_title_bill = 'GAMUZAS, CUERO & COLOR' #Depends on business information
 snd_line_title_bill = 'LAVANDERÍA Y TINTORERÍA' #Depends on business information
@@ -266,7 +267,7 @@ class printerDriver():
         bill_html = first_part + articles_part + last_part
 
         config = pdfkit.configuration(wkhtmltopdf= WKHTMLTOPDF_PATH)
-        pdfkit.from_string(bill_html, 'pdf_generated.pdf', configuration=config,
+        pdfkit.from_string(bill_html, BILL_PDF_PATH, configuration=config,
             options =
                 {
                     'page-height': page_height,
@@ -281,7 +282,7 @@ class printerDriver():
 
         currentprinter = win32print.GetDefaultPrinter()
 
-        win32api.ShellExecute(0, 'open', GSPRINT_PATH, '-ghostscript "'+GHOSTSCRIPT_PATH+'" -printer "'+currentprinter+'" "pdf_generated.pdf"', '.', 0)
+        win32api.ShellExecute(0, 'open', GSPRINT_PATH, '-ghostscript "'+GHOSTSCRIPT_PATH+'" -printer "'+currentprinter+'" "'+BILL_PDF_PATH+'"', '.', 0)
 
 
 
@@ -315,12 +316,12 @@ class utils(dbDriver, formater, printerDriver):
             component.textChanged.connect(
                 lambda: self.check_if_can_do_action(components, action_component))
 
-    def check_if_can_do_action(self, fields_to_be_ckeck, action_component):
+    def check_if_can_do_action(self, fields_to_be_check, action_component):
         ckeck_results = map(lambda field:
                             field.text() != ''
                             and field.text() != '0'
                             and field.text() != 'Entregado',
-                            fields_to_be_ckeck)
+                            fields_to_be_check)
 
         if all(ckeck_results):
             action_component.setEnabled(True)

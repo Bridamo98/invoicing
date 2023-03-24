@@ -1,6 +1,6 @@
 # TO RUN:
 # cd Desktop\"GC&C"\"GC&CSystem" & designer system_ui.ui
-# pyuic5 -x system_ui.ui -o system_ui.py & python system_logic.py
+# pyuic5 -x system_ui.ui -o system_ui.py & python system_logic.pyw
 
 from pickle import TRUE
 from modules.utils import *
@@ -25,12 +25,12 @@ class billSystem(QtWidgets.QMainWindow, Ui_MainWindow, utils):
         # this fields must be filled to add an article (addArticleButton)
 
         fields_to_add_article = [
-            self.articleDescriptionField, self.articleUnitValueField]
+            self.articleDescriptionField]
 
         # this fields must be filled to generate a bill (generateBillButton)
 
         fields_to_generate_bill = [
-            self.findClientTelField, self.findClientNameField, self.totalField]
+            self.findClientTelField, self.findClientNameField]
 
         # this fields must be filled to find a bill (findBillButton)
 
