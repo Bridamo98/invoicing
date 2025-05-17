@@ -15,7 +15,7 @@ GSPRINT_PATH = parent_path + "\\static_dependencies\\GSPRINT\\gsprint.exe"
 WKHTMLTOPDF_PATH = parent_path + "\\static_dependencies\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
 BILL_PDF_PATH = parent_path + "\\static_dependencies\\pdf_generated.pdf"
 
-fst_line_title_bill = 'GAMUZAS, CUERO & COLOR' #Depends on business information
+fst_line_title_bill = 'GAMUZAS, CUERO & COLOR 2' #Depends on business information
 snd_line_title_bill = 'LAVANDERÍA Y TINTORERÍA' #Depends on business information
 contact_phone = '3203198958' #Depends on business information
 page_height = '297mm' #Depends on POS Printer dimensions
